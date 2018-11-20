@@ -22,7 +22,7 @@ func main() {
         // handle error
     }
     
-    p := Parallel()
+    p := async.Parallel()
     p.AddFuncs(Func{Tag: "a", F: func() error {
         fmt.Println("a ", time.Now().UnixNano())
         return errors.New("a's error")
