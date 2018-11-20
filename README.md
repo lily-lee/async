@@ -2,6 +2,8 @@
 
 Simple Golang Async
 
+## Usage
+
 ```golang
 
 import (
@@ -14,7 +16,14 @@ func main() {
         fmt.Println("here")
     })
     
-    a.Run()
+    if err:= a.Run(); err != nil {
+        // handle error
+    }
 }
 
 ```
+
+## TODO
+- [x] Error
+- [ ] Timeout
+- [ ] Result

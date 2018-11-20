@@ -23,23 +23,28 @@ func (a *aSync) AddFunc(f func() error) {
 }
 
 func (a *aSync) AddFuncs(f ...func() error) {
-	if len(f) > 0 {
-		for i := range f {
-			a.funcs = append(a.funcs, f[i])
-		}
-	}
+	a.funcs = append(a.funcs, f...)
 }
 
-func (a *aSync) Run() {
+func (a *aSync) Run() error {
+	errChan := make(chan error, len(a.funcs))
 	for i := range a.funcs {
 		a.wg.Add(1)
 		go func(i int) {
 			defer handlePanic()
 			defer a.wg.Done()
-			a.funcs[i]()
+			errChan <- a.funcs[i]()
 		}(i)
 	}
 	a.wg.Wait()
+	select {
+	case err := <-errChan:
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func handlePanic() {
