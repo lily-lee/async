@@ -2,6 +2,8 @@
 
 Simple Golang Async
 
+Run your functions in parallel, and waiting for all functions end.  
+
 ## Usage
 
 ```golang
@@ -19,6 +21,18 @@ func main() {
     if err:= a.Run(); err != nil {
         // handle error
     }
+    
+    p := Parallel()
+    p.AddFuncs(Func{Tag: "a", F: func() error {
+        fmt.Println("a ", time.Now().UnixNano())
+        return errors.New("a's error")
+    }}, Func{Tag: "b", F: func() error {
+        fmt.Println("b ", time.Now().UnixNano())
+        return errors.New("b's error")
+    }})
+    
+    errMap := p.Run()
+    fmt.Printf("Parallel err: %+v\n", err
 }
 
 ```

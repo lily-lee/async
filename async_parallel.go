@@ -4,16 +4,20 @@ import (
 	"sync"
 )
 
+// Parallel return parallel handler
+func Parallel() *parallel {
+	return &parallel{
+		wg: sync.WaitGroup{},
+		f:  []Func{},
+		e:  errMap{mu: sync.Mutex{}, errors: map[string]error{}},
+	}
+}
+
 type parallel struct {
 	wg sync.WaitGroup
 	f  []Func
-	e  Error
-	eC chan Err
-}
-
-type Error struct {
-	mu     sync.Mutex
-	errors map[string]error
+	e  errMap
+	eC chan err
 }
 
 type Func struct {
@@ -21,36 +25,36 @@ type Func struct {
 	F   func() error
 }
 
-func Parallel() *parallel {
-	return &parallel{
-		wg: sync.WaitGroup{},
-		f:  []Func{},
-		e:  Error{mu: sync.Mutex{}, errors: map[string]error{}},
-	}
+type errMap struct {
+	mu     sync.Mutex
+	errors map[string]error
 }
 
-func (p *parallel) AddFunc(f Func) {
-	p.f = append(p.f, f)
-}
-
-func (p *parallel) AddFuncs(f ...Func) {
-	p.f = append(p.f, f...)
-}
-
-type Err struct {
+type err struct {
 	tag string
 	err error
 }
 
+// AddFunc add one func to handler
+func (p *parallel) AddFunc(f Func) {
+	p.f = append(p.f, f)
+}
+
+// AddFunc add more functions to handler
+func (p *parallel) AddFuncs(f ...Func) {
+	p.f = append(p.f, f...)
+}
+
+// Run return all errors if error exists
 func (p *parallel) Run() map[string]error {
-	p.eC = make(chan Err, len(p.f))
+	p.eC = make(chan err, len(p.f))
 
 	for i := range p.f {
 		p.wg.Add(1)
 		go func(i int) {
 			defer handlePanic()
 			defer p.wg.Done()
-			p.eC <- Err{tag: p.f[i].Tag, err: p.f[i].F()}
+			p.eC <- err{tag: p.f[i].Tag, err: p.f[i].F()}
 		}(i)
 	}
 

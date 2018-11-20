@@ -6,11 +6,7 @@ import (
 	"sync"
 )
 
-type aSync struct {
-	wg    sync.WaitGroup
-	funcs []func() error
-}
-
+// New simple aSync handler
 func New() *aSync {
 	return &aSync{
 		wg:    sync.WaitGroup{},
@@ -18,14 +14,22 @@ func New() *aSync {
 	}
 }
 
+type aSync struct {
+	wg    sync.WaitGroup
+	funcs []func() error
+}
+
+// AddFunc add one func to handler
 func (a *aSync) AddFunc(f func() error) {
 	a.funcs = append(a.funcs, f)
 }
 
+// AddFunc add more functions to handler
 func (a *aSync) AddFuncs(f ...func() error) {
 	a.funcs = append(a.funcs, f...)
 }
 
+// Run return only one error if error exists
 func (a *aSync) Run() error {
 	errChan := make(chan error, len(a.funcs))
 	for i := range a.funcs {
@@ -43,7 +47,7 @@ func (a *aSync) Run() error {
 			return err
 		}
 	}
-
+	close(errChan)
 	return nil
 }
 
