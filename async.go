@@ -44,11 +44,17 @@ func (a *aSync) Run() error {
 	select {
 	case err := <-errChan:
 		if err != nil {
+			a.reset()
 			return err
 		}
 	}
 	close(errChan)
+	a.reset()
 	return nil
+}
+
+func (a *aSync) reset() {
+	a.funcs = []func() error{}
 }
 
 func handlePanic() {

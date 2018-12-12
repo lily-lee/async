@@ -65,5 +65,14 @@ func (p *parallel) Run() map[string]error {
 		p.e.errors[e.tag] = e.err
 	}
 
-	return p.e.errors
+	result := p.e.errors
+
+	p.reset()
+
+	return result
+}
+
+func (p *parallel) reset() {
+	p.f = []Func{}
+	p.e = errMap{mu: sync.Mutex{}, errors: map[string]error{}}
 }

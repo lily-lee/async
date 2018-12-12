@@ -27,4 +27,16 @@ func TestParallel(t *testing.T) {
 
 	err := p.Run()
 	fmt.Printf("Parallel err: %+v\n", err)
+	p.AddFuncs(Func{"lily", func() error {
+		fmt.Println("lily")
+		return nil
+	}}, Func{"lucy", func() error {
+		fmt.Println("lucy")
+		return nil
+	}}, Func{"robin", func() error {
+		fmt.Println("robin")
+		return nil
+	}})
+	err = p.Run()
+	fmt.Printf("PPPPP err: %+v", err)
 }

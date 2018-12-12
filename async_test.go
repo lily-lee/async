@@ -64,4 +64,13 @@ func TestAsync(t *testing.T) {
 	fmt.Println("err: ", e)
 
 	fmt.Println("ii::::", ii, time.Now().Sub(s).String(), ss, m)
+
+	a.AddFuncs(func() error {
+		fmt.Println("AAA")
+		return nil
+	}, func() error {
+		fmt.Println("BBB")
+		return nil
+	})
+	a.Run()
 }
