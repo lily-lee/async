@@ -16,17 +16,19 @@ func TestParallel(t *testing.T) {
 		fmt.Println("b ", time.Now().UnixNano())
 		return errors.New("b's error")
 	}}, Func{Tag: "c", F: func() error {
+		time.Sleep(5 * time.Second)
 		fmt.Println("c ", time.Now().UnixNano())
 		return errors.New("c's error")
 	}}, Func{Tag: "d", F: func() error {
 		fmt.Println("d ", time.Now().UnixNano())
-		time.Sleep(3 * time.Second)
 		fmt.Println("d done")
 		return nil
 	}})
 
+	p.SetTimeout(time.Second)
 	err := p.Run()
 	fmt.Printf("Parallel err: %+v\n", err)
+
 	p.AddFuncs(Func{"lily", func() error {
 		fmt.Println("lily")
 		return nil

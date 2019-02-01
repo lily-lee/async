@@ -54,13 +54,14 @@ func TestAsync(t *testing.T) {
 		fmt.Println("e:::", ii, time.Now().UnixNano())
 		return errors.New("eeeeeeeee")
 	}, func() error {
+		time.Sleep(5 * time.Second)
 		ii++
 		ss = append(ss, "f")
 		fmt.Println("f:::", ii, time.Now().UnixNano())
 		return errors.New("ffffffff")
 	})
 
-	e := a.Run()
+	e := a.SetTimeout(time.Second).Run()
 	fmt.Println("err: ", e)
 
 	fmt.Println("ii::::", ii, time.Now().Sub(s).String(), ss, m)

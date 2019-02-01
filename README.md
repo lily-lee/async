@@ -39,5 +39,5 @@ func main() {
 
 ## TODO
 - [x] Error
-- [ ] Timeout
+- [x] Timeout
 - [ ] Result

@@ -1,0 +1,16 @@
+{
+    "Vendor": true,
+    "Deadline": "1m",
+    "Sort": ["linter", "severity", "path", "line"],
+    "Exclude": [
+      "vendor"
+    ],
+    "EnableGC": true,
+    "WarnUnmatchedDirective": true,
+    "DisableAll": true,
+    "Enable": [
+      "golint"
+    ],
+    "Cyclo": 16,
+    "LineLength": 200
+  }
