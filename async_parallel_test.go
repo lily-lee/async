@@ -40,5 +40,5 @@ func TestParallel(t *testing.T) {
 		return nil
 	}})
 	err = p.Run()
-	fmt.Printf("PPPPP err: %+v", err)
+	fmt.Printf("PPPPP err: %+v\n", err)
 }
