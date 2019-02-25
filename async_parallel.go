@@ -8,7 +8,7 @@ import (
 // Parallel return parallel handler
 func Parallel() *parallel {
 	return &parallel{
-		wg:      sync.WaitGroup{},
+		wg:      &sync.WaitGroup{},
 		f:       []Func{},
 		e:       errMap{mu: sync.Mutex{}, errors: map[string]error{}},
 		timeout: defaultTimeout,
@@ -16,7 +16,7 @@ func Parallel() *parallel {
 }
 
 type parallel struct {
-	wg      sync.WaitGroup
+	wg      *sync.WaitGroup
 	f       []Func
 	e       errMap
 	eC      chan err
@@ -60,7 +60,13 @@ func (p *parallel) Run() map[string]error {
 
 	for i := range p.f {
 		p.wg.Add(1)
-		go p.handle(i)
+		go func(i int) {
+			defer p.wg.Done()
+			p.eC <- err{
+				tag: p.f[i].Tag,
+				err: handle(p.timeout, p.f[i].F),
+			}
+		}(i)
 	}
 
 	p.wg.Wait()
@@ -105,4 +111,22 @@ func (p *parallel) reset() {
 	p.f = []Func{}
 	p.e = errMap{mu: sync.Mutex{}, errors: map[string]error{}}
 	p.timeout = defaultTimeout
+}
+
+func handle(timeout time.Duration, f func() error) error {
+	if timeout > 0 {
+		timer := time.NewTimer(timeout)
+		eC := make(chan error)
+		go func() {
+			eC <- f()
+		}()
+		select {
+		case <-timer.C:
+			return TimeoutErr
+		case err := <-eC:
+			return err
+		}
+	}
+
+	return f()
 }

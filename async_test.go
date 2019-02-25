@@ -1,77 +1,58 @@
 package async_test
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 	"time"
+
+	"fmt"
+
+	"errors"
 
 	"github.com/lily-lee/async"
 )
 
 func TestAsync(t *testing.T) {
-	ss := []string{}
-	m := struct {
-		A string
-		B string
-		C string
-		D string
-	}{}
-	s := time.Now()
-	ii := 0
-	a := async.New()
-	a.AddFunc(func() error {
-		ii++
-		ss = append(ss, "a")
-		m.A = "a"
-		fmt.Println("a:::", ii, time.Now().UnixNano())
-		time.Sleep(3 * time.Second)
-		return errors.New("aaaaa")
-	})
-	a.AddFunc(func() error {
-		ii++
-		ss = append(ss, "b")
-		m.B = "b"
-		fmt.Println("b:::", ii, time.Now().UnixNano())
-		return nil
-	})
-	a.AddFuncs(func() error {
-		ii++
-		ss = append(ss, "c")
-		m.C = "c"
-		fmt.Println("c:::", ii, time.Now().UnixNano())
-		return nil
-	})
-	a.AddFuncs(func() error {
-		ii++
-		ss = append(ss, "d")
-		m.D = "d"
-		fmt.Println("d:::", ii, time.Now().UnixNano())
-		return errors.New("ddddddd")
-	}, func() error {
-		ii++
-		ss = append(ss, "e")
-		fmt.Println("e:::", ii, time.Now().UnixNano())
-		return errors.New("eeeeeeeee")
-	}, func() error {
-		time.Sleep(5 * time.Second)
-		ii++
-		ss = append(ss, "f")
-		fmt.Println("f:::", ii, time.Now().UnixNano())
-		return errors.New("ffffffff")
+	t.Run("test timeout", func(t *testing.T) {
+		start := time.Now()
+		a := async.New()
+		a.AddFunc(func() error {
+			time.Sleep(3 * time.Second)
+			return errors.New("ErrA")
+		})
+
+		a.AddFunc(func() error {
+			time.Sleep(3 * time.Second)
+			return errors.New("ErrB")
+		})
+
+		err := a.SetTimeout(3 * time.Second).Run()
+		fmt.Println(err)
+		//if err != async.TimeoutErr {
+		//	t.Fail()
+		//}
+
+		fmt.Println(time.Now().Sub(start).Seconds())
 	})
 
-	e := a.SetTimeout(time.Second).Run()
-	fmt.Println("err: ", e)
+	t.Run("test common error", func(t *testing.T) {
+		start := time.Now()
+		a := async.New()
+		a.AddFunc(func() error {
+			time.Sleep(3 * time.Second)
+			return errors.New("ErrA")
+		})
 
-	fmt.Println("ii::::", ii, time.Now().Sub(s).String(), ss, m)
+		a.AddFunc(func() error {
+			time.Sleep(3 * time.Second)
+			return errors.New("ErrB")
+		})
 
-	a.AddFuncs(func() error {
-		fmt.Println("AAA")
-		return nil
-	}, func() error {
-		fmt.Println("BBB")
-		return nil
+		err := a.SetTimeout(5 * time.Second).Run()
+		fmt.Println(err)
+		//if err != async.TimeoutErr {
+		//	t.Fail()
+		//}
+
+		fmt.Println(time.Now().Sub(start).Seconds())
 	})
-	a.Run()
 }
