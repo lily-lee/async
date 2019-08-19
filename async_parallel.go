@@ -88,6 +88,7 @@ func (p *parallel) handle(i int) {
 	var timer *time.Timer
 	if p.timeout > 0 {
 		timer = time.NewTimer(p.timeout)
+		defer timer.Stop()
 		go p.handleTimeout(i, timer)
 	}
 
