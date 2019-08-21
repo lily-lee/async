@@ -25,7 +25,7 @@ func TestParallel(t *testing.T) {
 		return nil
 	}})
 
-	p.SetTimeout(time.Second)
+	p.SetTimeout(time.Millisecond)
 	err := p.Run()
 	fmt.Printf("Parallel err: %+v\n", err)
 

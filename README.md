@@ -23,6 +23,7 @@ func main() {
     }
     
     p := async.Parallel()
+    p.SetPooNum(50)
     p.AddFuncs(Func{Tag: "a", F: func() error {
         fmt.Println("a ", time.Now().UnixNano())
         return errors.New("a's error")
@@ -40,4 +41,5 @@ func main() {
 ## TODO
 - [x] Error
 - [x] Timeout
+- [x] SetPoolNum
 - [ ] Result
