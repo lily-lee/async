@@ -89,3 +89,4 @@ func main() {
 - [x] Timeout
 - [x] SetPoolNum
 - [ ] Result
+- [ ] context.Context
